@@ -90,6 +90,11 @@ export default function PropertyCarousel() {
       formData.append("title", title);
       formData.append("deviceType", selectedDeviceType);
       await axios.post(`${SERVER_URL}/carousel`, formData);
+       Swal.fire({
+      title: `Uploaded Sucessfully`,
+      icon: "success",
+      timer: 1500
+    })
       setFile(null);
       setTitle("");
       setPreview(null);
@@ -177,7 +182,7 @@ export default function PropertyCarousel() {
             </h2>
             <div className="relative">
               <div
-                className="relative overflow-hidden rounded-xl bg-slate-900 w-full aspect-video"
+                className="relative overflow-hidden rounded-xl bg-black w-full h-[60vh] sm:h-[70vh] md:h-[80vh] flex items-center justify-center"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -187,12 +192,15 @@ export default function PropertyCarousel() {
                   style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
                   {images.map((img) => (
-                    <div key={img.id} className="min-w-full relative">
+                    
+                     <div key={img.id} className="min-w-full flex items-center justify-center bg-black relative">
                       <img
                         src={`${SERVER_URL}/${img.image.replace(/^\/?/, '')}`}
                         alt={img.title}
-                        className="w-full h-full object-cover"
+                        className="max-h-[80vh] w-auto object-contain mx-auto rounded-xl"
+                        style={{ maxWidth: '100%' }}
                       />
+                  
                       <button
                         onClick={() => handleDelete(img.id, img.title)}
                         className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110 z-10"
