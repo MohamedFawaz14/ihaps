@@ -4,7 +4,7 @@ import { Home, Building2, Trophy, MessageSquare, Briefcase, BookOpen, LogOut, Me
 
 export default function NavBar() {
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   
 
