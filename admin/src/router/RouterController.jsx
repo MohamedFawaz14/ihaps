@@ -10,7 +10,7 @@ import ProjectsPageAdmin from '../components/ProjectsPage.jsx';
 import ServicesPage from '../components/ServicesPage.jsx';
 import TestimonialsPage from '../components/TestimonialsPage.jsx';
 import ProtectedRoute from '../components/ProtectedRoute.jsx';
-
+import ManageUsers from "../components/ManageUsers.jsx";
 function RouterController() {
   return (           
             <Routes>
@@ -63,6 +63,15 @@ function RouterController() {
                 element={
                   <ProtectedRoute>
                     <InsightsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/manage-users"
+                element={
+                  <ProtectedRoute>
+                    <ManageUsers />
                   </ProtectedRoute>
                 }
               />

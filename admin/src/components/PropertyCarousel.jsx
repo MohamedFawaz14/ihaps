@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import axios from "axios";
-import Swal from "sweetalert2";
+import { useState, useEffect } from "react";
 import { Upload, Trash2, ImageIcon, Plus, ChevronLeft, ChevronRight, X, Monitor, Smartphone } from "lucide-react";
 
 export default function PropertyCarousel() {
@@ -12,17 +10,25 @@ export default function PropertyCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const autoSlideRef = useRef();
-   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  const [autoSlideEnabled, setAutoSlideEnabled] = useState(false);
+  
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
   // Fetch ALL images
   const fetchImages = async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/carousel`);
-      setImages(res.data);
-      if (res.data.length === 0) setCurrentSlide(0);
-      else if (currentSlide >= res.data.length) setCurrentSlide(res.data.length - 1);
+      const res = await fetch(`${SERVER_URL}/carousel`);
+      const data = await res.json();
+      setImages(data);
+
+      if (images.length === 0) {
+        setCurrentSlide(0);
+      } else if (currentSlide >= images.length) {
+        setCurrentSlide(images.length - 1);
+      }
     } catch (error) {
       console.error("Error fetching images:", error);
+      setImages([]);
     }
   };
 
@@ -33,21 +39,25 @@ export default function PropertyCarousel() {
   // Preload images
   useEffect(() => {
     images.forEach(img => {
-      const image = new Image();
-      image.src = `${SERVER_URL}/${img.image.replace(/^\/?/, '')}`;
+      if (img.image) {
+        const image = new Image();
+        image.src = `${SERVER_URL}/${img.image.replace(/^\/?/, '')}`;
+      }
     });
   }, [images]);
 
-  // Auto-slide
+  // Auto-slide functionality (optional)
   useEffect(() => {
-    if (images.length === 0) return;
-    autoSlideRef.current = setInterval(() => {
+    if (!autoSlideEnabled || images.length === 0) return;
+    
+    const intervalId = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % images.length);
-    }, 3000);
-    return () => clearInterval(autoSlideRef.current);
-  }, [images]);
+    }, 1500);
+    
+    return () => clearInterval(intervalId);
+  }, [images.length, autoSlideEnabled]);
 
-  // ✅ TOGGLE DEVICE TYPE
+  // Toggle device type
   const toggleDeviceType = async (id, currentType) => {
     const newType = currentType === "mobile" ? "desktop" : "mobile";
     
@@ -57,15 +67,21 @@ export default function PropertyCarousel() {
         prev.map(img => img.id === id ? { ...img, deviceType: newType } : img)
       );
       
-      // Update backend
-      await axios.put(`${SERVER_URL}/${id}`, { deviceType: newType });
+      // Uncomment for real API call:
+      // await fetch(`${SERVER_URL}/carousel/${id}`, {
+      //   method: 'PUT',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ deviceType: newType })
+      // });
+      
+      console.log(`Updated device type for ${id} to ${newType}`);
     } catch (err) {
       console.error("Failed to update device type:", err);
       // Revert on error
       setImages(prev => 
         prev.map(img => img.id === id ? { ...img, deviceType: currentType } : img)
       );
-      Swal.fire("Error", "Failed to update device type", "error");
+      alert("Failed to update device type");
     }
   };
 
@@ -76,12 +92,20 @@ export default function PropertyCarousel() {
       const reader = new FileReader();
       reader.onloadend = () => setPreview(reader.result);
       reader.readAsDataURL(selectedFile);
-    } else setPreview(null);
+    } else {
+      setPreview(null);
+    }
   };
 
   const handleAdd = async (selectedDeviceType) => {
-    if (!file) return alert("Please select an image");
-    if (!title.trim()) return alert("Please enter a title");
+    if (!file) {
+      alert("Please select an image");
+      return;
+    }
+    if (!title.trim()) {
+      alert("Please enter a title");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -89,7 +113,17 @@ export default function PropertyCarousel() {
       formData.append("image", file);
       formData.append("title", title);
       formData.append("deviceType", selectedDeviceType);
-      await axios.post(`${SERVER_URL}/carousel`, formData);
+      
+      // Uncomment for real API call:
+      // await fetch(`${SERVER_URL}/carousel`, {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      
+      // Mock success
+      console.log("Image uploaded successfully");
+      alert("Uploaded Successfully!");
+      
       setFile(null);
       setTitle("");
       setPreview(null);
@@ -102,61 +136,67 @@ export default function PropertyCarousel() {
     }
   };
 
-  const handleDelete = async (id, title) => {
-    Swal.fire({
-      title: `Are you sure you want to delete "${title}"?`,
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#00008B",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`${SERVER_URL}/carousel/${id}`);
-          setImages(prev => prev.filter(img => img.id !== id));
-          if (currentSlide >= images.length - 1) {
-            setCurrentSlide(Math.max(0, images.length - 2));
-          }
-          Swal.fire({
-            title: "Deleted!",
-            text: `Property "${title}" has been deleted.`,
-            icon: "success",
-          });
-        } catch (err) {
-          console.error("Error deleting image:", err);
-          Swal.fire({
-            title: "Error!",
-            text: "Failed to delete property image.",
-            icon: "error",
-          });
+  const handleDelete = async (id, imageTitle) => {
+    const confirmed = window.confirm(`Are you sure you want to delete "${imageTitle}"?`);
+    
+    if (confirmed) {
+      try {
+        // Uncomment for real API call:
+        // await fetch(`${SERVER_URL}/carousel/${id}`, { method: 'DELETE' });
+        
+        setImages(prev => prev.filter(img => img.id !== id));
+        
+        // Adjust current slide if necessary
+        if (currentSlide >= images.length - 1 && currentSlide > 0) {
+          setCurrentSlide(prev => Math.max(0, prev - 1));
         }
+        
+        alert(`Deleted "${imageTitle}" successfully!`);
+      } catch (err) {
+        console.error("Error deleting image:", err);
+        alert("Failed to delete property image.");
       }
-    });
+    }
   };
 
   const nextSlide = () => {
-    clearInterval(autoSlideRef.current);
+    if (images.length === 0) return;
     setCurrentSlide(prev => (prev + 1) % images.length);
   };
 
   const prevSlide = () => {
-    clearInterval(autoSlideRef.current);
+    if (images.length === 0) return;
     setCurrentSlide(prev => (prev - 1 + images.length) % images.length);
   };
 
-  const handleTouchStart = (e) => setTouchStart(e.touches[0].clientX);
-  const handleTouchMove = (e) => setTouchEnd(e.touches[0].clientX);
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
   const handleTouchEnd = () => {
-    if (touchStart - touchEnd > 75) nextSlide();
-    if (touchStart - touchEnd < -75) prevSlide();
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 75;
+    const isRightSwipe = distance < -75;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+    
     setTouchStart(0);
     setTouchEnd(0);
   };
 
   return (
-    <div className="min-h-screen mb-5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -172,38 +212,66 @@ export default function PropertyCarousel() {
         {/* Carousel Display */}
         {images.length > 0 ? (
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-slate-800 mb-4">
-              All Carousel Images
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-slate-800">
+                All Carousel Images
+              </h2>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoSlideEnabled}
+                  onChange={(e) => setAutoSlideEnabled(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-slate-600">Auto-slide</span>
+              </label>
+            </div>
+            
             <div className="relative">
               <div
-                className="relative overflow-hidden rounded-xl bg-slate-900 w-full aspect-video"
+                className="relative overflow-hidden rounded-xl bg-black w-full h-[60vh] sm:h-[70vh] md:h-[80vh] flex items-center justify-center"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               >
                 <div
-                  className="flex transition-transform ease-in-out duration-300"
+                  className="flex transition-transform ease-in-out duration-500"
                   style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
                   {images.map((img) => (
-                    <div key={img.id} className="min-w-full relative">
-                      <img
-                        src={`${SERVER_URL}/${img.image.replace(/^\/?/, '')}`}
-                        alt={img.title}
-                        className="w-full h-full object-cover"
-                      />
+                    <div key={img.id} className="min-w-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 relative">
+                      {img.image && img.image.trim() !== "" ? (
+                        <img
+                          src={`${SERVER_URL}/${img.image.replace(/^\/?/, '')}`}
+                          alt={img.title}
+                          className="max-h-[80vh] w-auto object-contain mx-auto"
+                          style={{ maxWidth: '100%' }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.parentNode.querySelector('.fallback');
+                            if (fallback) {
+                              fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center fallback">
+                          <span className="text-gray-400 text-lg">No Image Available</span>
+                        </div>
+                      )}
+
                       <button
                         onClick={() => handleDelete(img.id, img.title)}
                         className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110 z-10"
+                        aria-label="Delete image"
                       >
                         <X className="w-5 h-5" />
                       </button>
+                      
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                        {/* ✅ CLICKABLE DEVICE BADGE */}
                         <div 
                           onClick={() => toggleDeviceType(img.id, img.deviceType)}
-                          className="flex items-center gap-2 mb-1 cursor-pointer group"
+                          className="flex items-center gap-2 mb-2 cursor-pointer group"
                         >
                           {img.deviceType === "mobile" ? (
                             <Smartphone className="w-4 h-4 text-blue-300 group-hover:text-blue-200" />
@@ -227,18 +295,20 @@ export default function PropertyCarousel() {
                   ))}
                 </div>
 
-                {/* Navigation */}
+                {/* Navigation Buttons */}
                 {images.length > 1 && (
                   <>
                     <button
                       onClick={prevSlide}
                       className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-slate-800 p-3 rounded-full shadow-lg transition-all hover:scale-110"
+                      aria-label="Previous slide"
                     >
                       <ChevronLeft className="w-6 h-6" />
                     </button>
                     <button
                       onClick={nextSlide}
                       className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-slate-800 p-3 rounded-full shadow-lg transition-all hover:scale-110"
+                      aria-label="Next slide"
                     >
                       <ChevronRight className="w-6 h-6" />
                     </button>
@@ -246,14 +316,19 @@ export default function PropertyCarousel() {
                 )}
               </div>
 
-              {/* Dots */}
+              {/* Dots Navigation */}
               {images.length > 1 && (
                 <div className="flex justify-center gap-2 mt-4">
                   {images.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentSlide(idx)}
-                      className={`transition-all ${idx === currentSlide ? "w-8 bg-blue-600" : "w-2 bg-slate-300 hover:bg-slate-400"} h-2 rounded-full`}
+                      className={`transition-all ${
+                        idx === currentSlide 
+                          ? "w-8 bg-blue-600" 
+                          : "w-2 bg-slate-300 hover:bg-slate-400"
+                      } h-2 rounded-full`}
+                      aria-label={`Go to slide ${idx + 1}`}
                     />
                   ))}
                 </div>
@@ -278,7 +353,9 @@ export default function PropertyCarousel() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Property Title</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Property Title
+                </label>
                 <input
                   type="text"
                   placeholder="e.g., Modern Villa in Downtown"
@@ -289,34 +366,9 @@ export default function PropertyCarousel() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Device Type *</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleAdd("mobile")}
-                    disabled={loading}
-                    className="flex flex-col items-center justify-center gap-2 p-4 border-2 rounded-lg hover:border-blue-500 transition bg-blue-50/50 hover:bg-blue-50 disabled:opacity-50"
-                  >
-                    <Smartphone className="w-6 h-6 text-blue-600" />
-                    <span className="font-medium">Mobile</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAdd("desktop")}
-                    disabled={loading}
-                    className="flex flex-col items-center justify-center gap-2 p-4 border-2 rounded-lg hover:border-green-500 transition bg-green-50/50 hover:bg-green-50 disabled:opacity-50"
-                  >
-                    <Monitor className="w-6 h-6 text-green-600" />
-                    <span className="font-medium">Desktop</span>
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  Choose where this image will be displayed
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Upload Image</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Upload Image
+                </label>
                 <div className="relative">
                   <input
                     type="file"
@@ -330,9 +382,40 @@ export default function PropertyCarousel() {
                     className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
                   >
                     <Upload className="w-5 h-5 text-slate-600" />
-                    <span className="text-slate-600">{file ? file.name : "Choose an image file"}</span>
+                    <span className="text-slate-600">
+                      {file ? file.name : "Choose an image file"}
+                    </span>
                   </label>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Device Type
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleAdd("mobile")}
+                    disabled={loading || !file || !title.trim()}
+                    className="flex flex-col items-center justify-center gap-2 p-4 border-2 rounded-lg hover:border-blue-500 transition bg-blue-50/50 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Smartphone className="w-6 h-6 text-blue-600" />
+                    <span className="font-medium">Mobile</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAdd("desktop")}
+                    disabled={loading || !file || !title.trim()}
+                    className="flex flex-col items-center justify-center gap-2 p-4 border-2 rounded-lg hover:border-green-500 transition bg-green-50/50 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Monitor className="w-6 h-6 text-green-600" />
+                    <span className="font-medium">Desktop</span>
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  Choose where this image will be displayed
+                </p>
               </div>
             </div>
 

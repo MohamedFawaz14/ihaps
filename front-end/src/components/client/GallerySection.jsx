@@ -80,31 +80,43 @@ export default function GallerySection() {
 
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {galleryImages.map((img, index) => (
-            <div
-              key={img.id}
-              className="relative group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              onClick={() => openLightbox(img, index)}
-            >
-              <div className="w-full aspect-square bg-gray-200 flex items-center justify-center relative">
-                <img
-                  src={img.image.startsWith("http")
-                    ? img.image
-                    : `${SERVER_URL}/${img.image.replace(/^\/?/, "")}`}
-                  alt={img.title || "gallery"}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute group-hover:bg-opacity-50 transition-all duration-300 flex items-end">
-                  <div className="p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <span className="inline-block px-2 py-1 bg-[#ffde23] text-black rounded text-xs mb-2 font-medium">
-                      {img.category}
-                    </span>
-                    <h3 className="font-medium">{img.title}</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+       {galleryImages.map((img, index) => (
+  <div
+    key={img.id}
+    className="relative group cursor-pointer rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+    onClick={() => openLightbox(img, index)}
+  >
+    <div className="w-full aspect-square bg-gray-200 flex items-center justify-center relative">
+      {
+        img.image && img.image.trim() !== "" ? (
+          <img
+            src={img.image.startsWith("http")
+              ? img.image
+              : `${SERVER_URL}/${img.image.replace(/^\/?/, "")}`}
+            alt={img.title || "gallery"}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentNode.querySelector('.fallback').style.display = 'flex';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center fallback" style={{ display: 'none' }}> 
+            <span className="text-gray-500 text-sm">No Image</span>
+          </div>
+        )
+      }
+      <div className="absolute group-hover:bg-opacity-50 transition-all duration-300 flex items-end">
+        <div className="p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <span className="inline-block px-2 py-1 bg-[#ffde23] text-black rounded text-xs mb-2 font-medium">
+            {img.category}
+          </span>
+          <h3 className="font-medium">{img.title}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+))}
         </div>
 
         {/* Lightbox */}

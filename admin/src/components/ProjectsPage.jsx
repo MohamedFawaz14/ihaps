@@ -3,7 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import ProjectModal from "./models/ProjectModal.jsx";
 import NavBar from "./NavBar";
-import { Plus, Leaf, Car, Shield, Users, Footprints, Droplets, Store, Lightbulb, Home, Sparkles } from 'lucide-react';
+import { Plus, Leaf, Car, Shield, Users, Footprints, Droplets, Store, Lightbulb, Home, Sparkles, Building2 } from 'lucide-react';
 
 // Icon mapping for amenities
 const amenityIcons = {
@@ -38,7 +38,8 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editProject, setEditProject] = useState(null);
-   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
   const getAmenityIcon = (amenityName) => {
     const name = amenityName.toLowerCase();
     for (const [key, Icon] of Object.entries(amenityIcons)) {
@@ -96,16 +97,37 @@ export default function ProjectsPage() {
     <div className="flex h-screen bg-gray-50">
       <NavBar />
       {/* Main Content - Scrollable */}
-      <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-10"> 
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 ml-0 md:ml-80 mt-10"> 
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-primary">Projects Management</h1>
-            <button
-              onClick={() => { setEditProject(null); setIsModalOpen(true); }}
-              className="bg-accent hover:bg-accent/90 text-primary px-4 py-2 rounded-md flex items-center"
-            >
-              <Plus className="w-4 h-4 mr-2" /> Add Project
-            </button>
+          {/* Header Section */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-amber-500 rounded-2xl blur-2xl opacity-20"></div>
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-xl border border-blue-100">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg">
+                      <Building2 className="w-6 h-6 text-white" />
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-amber-500 bg-clip-text text-transparent leading-tight pb-1">
+                      Projects
+                    </h1>
+                  </div>
+                  <p className="text-gray-600 ml-0 sm:ml-14">Manage and showcase your real estate projects</p>
+                </div>
+
+                <button
+                  onClick={() => { setEditProject(null); setIsModalOpen(true); }}
+                  className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 font-medium  sm:w-auto"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Plus className="w-5 h-5" />
+                    Add Project
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Project Cards */}
@@ -131,13 +153,19 @@ export default function ProjectsPage() {
                   </button>
                 </div>
 
-                {/* Main Image */}
-                {project.mainImage && (
+                {/* Main Image or Placeholder */}
+                {project.mainImage ? (
                   <div className="relative h-56 overflow-hidden group">
                     <img
                       src={project.mainImage.startsWith("http") ? project.mainImage : `${SERVER_URL}${project.mainImage}`}
-                      alt="Main"
+                      alt={project.name || "Project Image"} // Use project name or fallback
                       className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => {
+                         console.error("Main image failed to load:", e.target.src);
+                         // Optionally, you could set a default image here:
+                         // e.target.src = '/path/to/default/image.jpg';
+                         // Or hide the image element, though the placeholder logic below handles this better
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                     <div className="absolute bottom-4 left-4 right-4">
@@ -145,6 +173,14 @@ export default function ProjectsPage() {
                       <p className="text-white/90 text-sm flex items-center gap-1">
                         <span>📍</span> {project.location}
                       </p>
+                    </div>
+                  </div>
+                ) : (
+                  // Placeholder when mainImage is null/undefined/empty
+                  <div className="relative h-56 bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                    <div className="text-center">
+                      <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">No Image Available</p>
                     </div>
                   </div>
                 )}
@@ -162,18 +198,34 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Gallery */}
-                  {project.images?.length > 0 && (
+                  {project.images && project.images.length > 0 && (
                     <div className="mb-4">
                       <p className="text-sm font-semibold text-gray-700 mb-2">Gallery</p>
                       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                        {project.images.map((img, i) => (
-                          <img
-                            key={i}
-                            src={img.startsWith("http") ? img : `${SERVER_URL}${img}`}
-                            alt={`Sub ${i}`}
-                            className="w-20 h-20 object-cover rounded-lg flex-shrink-0 border-2 border-gray-200 hover:border-blue-400 transition-colors cursor-pointer"
-                          />
-                        ))}
+                        {project.images
+                          .filter(imgPath => imgPath) // Filter out null, undefined, empty strings
+                          .map((img, i) => (
+                            <div key={i} className="flex-shrink-0"> {/* Wrap image in a div for consistent sizing */}
+                              {img.startsWith ? ( // Check if img is a string before calling startsWith
+                                <img
+                                  src={img.startsWith("http") ? img : `${SERVER_URL}${img}`}
+                                  alt={`Gallery ${i}`}
+                                  className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 hover:border-blue-400 transition-colors cursor-pointer"
+                                  onError={(e) => {
+                                    console.error("Gallery image failed to load:", e.target.src);
+                                    e.target.style.display = 'none'; // Hide broken image
+                                    // Or set a default image
+                                    // e.target.src = '/path/to/default/gallery-thumb.jpg';
+                                  }}
+                                />
+                              ) : (
+                                // Placeholder if img is not a valid string path
+                                <div className="w-20 h-20 bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-lg">
+                                  <span className="text-xs text-gray-500">N/A</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}

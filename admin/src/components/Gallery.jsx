@@ -10,6 +10,8 @@ export default function GalleryAdmin() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [galleries, setGalleries] = useState([]);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+const [previewImage, setPreviewImage] = useState('');
    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   // Fetch gallery data
   const fetchGallery = async () => {
@@ -57,7 +59,7 @@ export default function GalleryAdmin() {
       });
 
       Swal.fire("Success", "Image uploaded successfully!", "success");
-      console.log("Uploaded:", res.data);
+    
 
       setTitle("");
       setCategory("");
@@ -217,36 +219,69 @@ export default function GalleryAdmin() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {galleries.map((g) => (
-                <div
-                  key={g.id}
-                  className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="aspect-video overflow-hidden bg-slate-100">
-                    <img
-                      src={`${SERVER_URL}${g.image}`}
-                      alt={g.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
+          {galleries.map((g) => (
+            <div
+            key={g.id}
+            className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
+          >
+           {/* Fixed-height image container */}
+              <div 
+                className="h-64 w-full overflow-hidden bg-slate-100 flex items-center justify-center cursor-pointer"
+                onClick={() => g.image && (setPreviewImage(`${SERVER_URL}${g.image}`), setIsPreviewOpen(true))}
+              >
+                {g.image ? (
+                  <img
+                    src={`${SERVER_URL}${g.image}`}
+                    alt={g.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">No Image</span>
                   </div>
+                )}
+              </div>
 
-                  <div className="p-4">
-                    <h3 className="font-semibold text-slate-800 truncate">{g.title}</h3>
-                    <p className="text-slate-500 text-sm mb-3">{g.category}</p>
-                    <button
-                      onClick={() => handleDelete(g.id, g.title)}
-                      className="w-full bg-red-50 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+    <div className="p-4 flex flex-col flex-grow">
+      <h3 className="font-semibold text-slate-800 truncate">{g.title}</h3>
+      <p className="text-slate-500 text-sm mb-3">{g.category}</p>
+      <button
+        onClick={() => handleDelete(g.id, g.title)}
+        className="mt-auto w-full bg-red-50 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white transition-colors flex items-center justify-center gap-2"
+      >
+        <Trash2 className="w-4 h-4" />
+        Delete
+      </button>
+    </div>
             </div>
+          ))}
+        </div>
           )}
         </div>
       </div>
+      {isPreviewOpen && (
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4 sm:p-6"
+        onClick={() => setIsPreviewOpen(false)}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setIsPreviewOpen(false)}
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-75 transition-all z-50"
+          aria-label="Close preview"
+        >
+          <span className="text-xl font-bold">×</span>
+        </button>
+
+        {/* Image */}
+        <img 
+          src={previewImage} 
+          alt="Full size preview"
+          className="max-w-full max-h-[85vh] w-auto h-auto object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    )}
     </div>
   );
 }

@@ -31,11 +31,10 @@ const amenityIcons = {
   'default': Sparkles
 };
 
-
 export default function ProjectDetailsPage() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(false); 
+  const [error, setError] = useState(null); // Change error state to hold the error message or null
   const { id } = useParams();
 
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
@@ -51,22 +50,31 @@ export default function ProjectDetailsPage() {
   const fetchProject = async () => {
     try {
       setLoading(true);
+      setError(null); // Reset any previous error
+      setProject(null); // Optional: Clear previous project data if re-fetching
+
       const res = await axios.get(`${SERVER_URL}/projects/${id}`);
+      // The backend should return a 404 status if not found, which will be caught by the catch block
       setProject(res.data);
-      setError(false);
     } catch (err) {
-      console.error(err);
-      setError(true);
+      console.error("Error fetching project:", err);
+      // Check if the error is a 404 (project not found) or another type of error
+      if (err.response && err.response.status === 404) {
+        setError('Project not found'); // Set a specific error message for 404
+      } else {
+        setError('An error occurred while fetching the project.'); // Generic error message
+      }
     } finally {
-      setLoading(false);
+      setLoading(false); // Always stop loading after the request completes or fails
     }
   };
 
   useEffect(() => {
     if (id) fetchProject();
-  }, [id]);
+  }, [id]); // Only re-fetch if the 'id' parameter changes
 
 
+  // 1. Show loading state while fetching
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -78,12 +86,12 @@ export default function ProjectDetailsPage() {
     );
   }
 
-
-  if (error || !project) {
+  // 2. Show error state only if an actual error occurred (e.g., 404 or network issue)
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl mb-4 text-[#00217c]">Project Not Found</h1>
+          <h1 className="text-4xl mb-4 text-[#00217c]">{error}</h1> {/* Display the specific error message */}
           <Link to="/projects" className="text-[#d4af37] hover:underline">
             Back to Projects
           </Link>
@@ -92,15 +100,24 @@ export default function ProjectDetailsPage() {
     );
   }
 
-
- <div>
+  // 3. Show the project content only if loading is done and no error occurred
+  // At this point, 'project' should be a valid object (or the error state would have been triggered)
+  return (
+    <div>
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
-        <img
-          src={`${SERVER_URL}${project.mainImage}`}
-          alt={project.name}
-          className="w-full h-full object-cover"
-        />
+        {/* Handle potential null mainImage */}
+        {project.mainImage && (
+          <img
+            src={`${SERVER_URL}${project.mainImage}`}
+            alt={project.name || "Project Image"}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error("Main image failed to load:", e.target.src);
+              e.target.style.display = 'none'; // Hide broken image
+            }}
+          />
+        )}
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -128,17 +145,26 @@ export default function ProjectDetailsPage() {
             {/* Project Gallery */}
             <div className="mb-12">
               <h2 className="text-3xl mb-6 text-[#1e3a8a]">Project Gallery</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {project.images?.map((image, index) => (
-                  <div key={index} className="relative h-48 rounded-lg overflow-hidden">
-                    <img
-                      src={`${SERVER_URL}${image}`}
-                      alt={`${project.name} - Image ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                ))}
-              </div>
+              {/* Handle potential null/empty images array */}
+              {project.images && project.images.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {project.images.map((image, index) => (
+                    <div key={index} className="relative h-48 rounded-lg overflow-hidden">
+                      <img
+                        src={`${SERVER_URL}${image}`}
+                        alt={`${project.name} - Image ${index + 1}`}
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                           console.error("Gallery image failed to load:", e.target.src);
+                           e.target.style.display = 'none'; // Hide broken image
+                         }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No gallery images available.</p>
+              )}
             </div>
 
             {/* Description */}
@@ -150,17 +176,22 @@ export default function ProjectDetailsPage() {
             {/* Amenities */}
             <div className="mb-12">
               <h2 className="text-3xl mb-6 text-[#1e3a8a]">Amenities</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {project.amenities?.map((amenity, index) => {
-                  const Icon = getAmenityIcon(amenity.name);
-                  return (
-                    <div key={index} className="text-center bg-white p-6 rounded-xl shadow-lg">
-                      {Icon && <Icon className="w-8 h-8 text-[#d4af37] mx-auto mb-3" />}
-                      <p className="text-gray-700 font-medium">{amenity.name}</p>
-                    </div>
-                  );
-                })}
-              </div>
+              {/* Handle potential null/empty amenities array */}
+              {project.amenities && project.amenities.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {project.amenities.map((amenity, index) => {
+                    const Icon = getAmenityIcon(amenity.name);
+                    return (
+                      <div key={index} className="text-center bg-white p-6 rounded-xl shadow-lg">
+                        {Icon && <Icon className="w-8 h-8 text-[#d4af37] mx-auto mb-3" />}
+                        <p className="text-gray-700 font-medium">{amenity.name}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-500">No amenities listed.</p>
+              )}
             </div>
           </div>
 
@@ -174,23 +205,29 @@ export default function ProjectDetailsPage() {
               {/* Specifications */}
               <div className="mb-6">
                 <h4 className="font-semibold text-[#1e3a8a] mb-3">Specifications</h4>
-                <div className="space-y-2">
-                  {Object.entries(project.specifications || {}).map(([key, value]) => {
-                    if (key === "id") return null;
-                    const formatKey = (str) =>
-                      str.replace(/([A-Z])/g, " $1").replace(/^./, char => char.toUpperCase()).trim();
-                    return (
-                      <div key={key} className="flex justify-between">
-                        <span className="text-gray-600">{formatKey(key)}:</span>
-                        <span className="text-gray-800 font-medium">{value}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                {/* Handle potential null specifications object */}
+                {project.specifications ? (
+                  <div className="space-y-2">
+                    {Object.entries(project.specifications).map(([key, value]) => {
+                      if (key === "id") return null;
+                      const formatKey = (str) =>
+                        str.replace(/([A-Z])/g, " $1").replace(/^./, char => char.toUpperCase()).trim();
+                      return (
+                        <div key={key} className="flex justify-between">
+                          <span className="text-gray-600">{formatKey(key)}:</span>
+                          <span className="text-gray-800 font-medium">{value}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No specifications available.</p>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
 }

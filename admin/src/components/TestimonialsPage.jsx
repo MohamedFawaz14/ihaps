@@ -76,7 +76,7 @@ export default function TestimonialsPage() {
 
   return (
     
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen">
       <NavBar />
  
       <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-10">
@@ -84,7 +84,7 @@ export default function TestimonialsPage() {
           {/* Header */}
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-amber-500 rounded-2xl blur-2xl opacity-20"></div>
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-blue-100">
+            <div className="relative  backdrop-blur-sm rounded-2xl p-8 shadow-xl border">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">

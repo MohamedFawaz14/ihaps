@@ -17,6 +17,7 @@ export default function BlogPage() {
     try {
       const res = await axios.get(`${SERVER_URL}/insights`);
       setInsights(res.data || []);
+      console.log(res.data)
     } catch (err) {
       toast.error('Failed to fetch insights!', err);
       setInsights([]); 
@@ -77,11 +78,30 @@ export default function BlogPage() {
             {displayPosts.map((post, index) => (
               <article key={index} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group">
                 <div className="relative h-48 overflow-hidden">
-                  <ImageWithFallback
-                    src={post.image.startsWith('http') ? post.image : `${SERVER_URL}${post.image}`}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                 {post.image && ( // post.image is truthy (not null, not undefined, not an empty string)
+              <img
+                src={post.image.startsWith("http") 
+                  ? post.image 
+                  : `${SERVER_URL}${post.image}`
+                }
+                // An error handler to catch cases where the image fails to load after this check
+                onError={(e) => {
+                  console.error("Image failed to load:", e.target.src);
+                  e.target.style.display = 'none'; // Optionally hide the broken image
+                  // Or set a default image:
+                  // e.target.src = '/path/to/default/image.jpg';
+                }}
+                alt={post.name || "Insights Image"} // Provide a fallback alt text
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            )}
+            {/* Show a placeholder if mainImage is null */}
+            
+            {!post.image && (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500">No Image Available</span>
+              </div>
+            )}
                   <div className="absolute top-4 left-4">
                     <span className="bg-[#d4af37] text-black px-3 py-1 rounded-full text-sm font-medium">
                       {post.category}

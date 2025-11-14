@@ -44,7 +44,7 @@ export default function VenturesSection() {
   });
 
   return (
-    <section id="ventures" className=" bg-gray-50">
+    <section id="ventures" className="  mb-10">
       {/* Banner Image Section */}
       <div className="w-full bg-yellow-400 py-12 mb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,15 +75,32 @@ export default function VenturesSection() {
                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative h-64">
-                  <img
-                    src={venture.mainImage.startsWith("http") 
-                      ? venture.mainImage 
-                      : `${SERVER_URL}${venture.mainImage}`
-                    }
-                    alt={venture.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
+            {venture.mainImage && ( // Check if venture.mainImage is truthy (not null, not undefined, not an empty string)
+              <img
+                src={venture.mainImage.startsWith("http") 
+                  ? venture.mainImage 
+                  : `${SERVER_URL}${venture.mainImage}`
+                }
+                // An error handler to catch cases where the image fails to load after this check
+                onError={(e) => {
+                  console.error("Image failed to load:", e.target.src);
+                  e.target.style.display = 'none'; // Optionally hide the broken image
+                  // Or set a default image:
+                  // e.target.src = '/path/to/default/image.jpg';
+                }}
+                alt={venture.name || "Venture Image"} // Provide a fallback alt text
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            )}
+            {/* Show a placeholder if mainImage is null */}
+            
+            {!venture.mainImage && (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500">No Image Available</span>
+              </div>
+            )}
+          
+          </div>
 
                 <div className="p-6">
                   <h3 className="text-2xl mb-3 text-[#1e3a8a]">{venture.name}</h3>

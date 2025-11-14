@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import InsightModal from "./models/InsightModal.jsx";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import NavBar from "./NavBar.jsx";
@@ -10,7 +10,8 @@ export default function InsightsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingInsight, setEditingInsight] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
   useEffect(() => {
     fetchInsights();
   }, []);
@@ -66,44 +67,71 @@ export default function InsightsPage() {
   );
 
   return (
-
     <div className="flex h-screen bg-gray-50">
       <NavBar />
    
       <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-10">
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl text-primary font-bold mb-2">Insights</h1>
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border px-3 py-2 rounded-md w-full max-w-xs"
-              />
-            </div>
+          {/* Header Section */}
+           <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-amber-500 rounded-2xl blur-2xl opacity-20"></div>
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-blue-100">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg">
+                      <BookOpen className="w-6 h-6 text-white" />
+                    </div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-amber-500 bg-clip-text text-transparent leading-tight pb-1">
+                      Insights
+                    </h1>
+                  </div>
+                  <p className="text-gray-600 ml-14 mb-4">Manage and share your latest insights and articles</p>
+                  
+                  {/* Search Bar */}
+                  <div className="ml-1">
+                    <input
+                      type="text"
+                      placeholder="Search insights by title, excerpt, or category..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="border border-gray-300 px-4 py-2 rounded-lg w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
 
-            <button
-              className="bg-accent text-primary px-4 py-2 rounded-md flex items-center"
-              onClick={() => { setEditingInsight(null); setIsModalOpen(true); }}
-            >
-              <Plus className="w-4 h-4 mr-2"/> Add Insight
-            </button>
+                <button
+                  onClick={() => { setEditingInsight(null); setIsModalOpen(true); }}
+                  className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 font-medium"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Plus className="w-5 h-5" />
+                    Add Insight
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
+              </div>
+            </div>
           </div>
 
+          {/* Insights Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredInsights.map(insight => (
-              <div key={insight.id} className="bg-white rounded-lg   border-2 border-blue-100 hover:border-blue-300
-              shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden" >
+              <div key={insight.id} className="bg-white rounded-lg border-2 border-blue-100 hover:border-blue-300 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
                 <div className="relative">
-                  {insight.image && (
+                   { insight.image ? ( // Check if insight.image exists and is truthy
                     <img 
                       src={`${SERVER_URL}${insight.image}`} 
                       alt={insight.title} 
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
-                  )}
+                  ) : (
+                    // Render a placeholder if insight.image is falsy
+                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-lg">
+                      <span className="text-gray-500 text-sm">No Image</span>
+                    </div>
+                  )
+                }`
                   <div className="absolute top-2 right-2 flex space-x-2">
                     <button
                       onClick={() => { setEditingInsight(insight); setIsModalOpen(true); }}
