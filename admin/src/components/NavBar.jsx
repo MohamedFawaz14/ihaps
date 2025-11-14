@@ -15,6 +15,7 @@ import {
 
 export default function NavBar() {
   const location = useLocation();
+
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);

@@ -1,5 +1,18 @@
 import { useState, useEffect } from "react";
-import { Upload, Trash2, ImageIcon, Plus, ChevronLeft, ChevronRight, X, Monitor, Smartphone } from "lucide-react";
+import axios from "axios"; // ✅ Import axios
+import Swal from "sweetalert2"; // ✅ Optional but needed if using Swal
+import {
+  Upload,
+  Trash2,
+  ImageIcon,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Monitor,
+  Smartphone,
+} from "lucide-react";
+
 
 export default function PropertyCarousel() {
   const [images, setImages] = useState([]);
@@ -11,20 +24,20 @@ export default function PropertyCarousel() {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [autoSlideEnabled, setAutoSlideEnabled] = useState(false);
-  
+
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
-  // Fetch ALL images
+  // ✅ Fetch ALL images — FIXED: no .json() needed with axios
   const fetchImages = async () => {
     try {
-      const res = await fetch(`${SERVER_URL}/carousel`);
-      const data = await res.json();
-      setImages(data);
+      const res = await axios.get(`${SERVER_URL}/carousel`);
+      setImages(res.data); // ✅ axios already parses JSON
 
-      if (images.length === 0) {
+      // Reset slide index if needed
+      if (res.data.length === 0) {
         setCurrentSlide(0);
-      } else if (currentSlide >= images.length) {
-        setCurrentSlide(images.length - 1);
+      } else if (currentSlide >= res.data.length) {
+        setCurrentSlide(res.data.length - 1);
       }
     } catch (error) {
       console.error("Error fetching images:", error);
@@ -38,52 +51,26 @@ export default function PropertyCarousel() {
 
   // Preload images
   useEffect(() => {
-    images.forEach(img => {
+    images.forEach((img) => {
       if (img.image) {
         const image = new Image();
-        image.src = `${SERVER_URL}/${img.image.replace(/^\/?/, '')}`;
+        image.src = `${SERVER_URL}/${img.image.replace(/^\/?/, "")}`;
       }
     });
-  }, [images]);
+  }, [images, SERVER_URL]);
 
-  // Auto-slide functionality (optional)
+  // Auto-slide
   useEffect(() => {
     if (!autoSlideEnabled || images.length === 0) return;
-    
+
     const intervalId = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % images.length);
+      setCurrentSlide((prev) => (prev + 1) % images.length);
     }, 1500);
-    
+
     return () => clearInterval(intervalId);
   }, [images.length, autoSlideEnabled]);
 
-  // Toggle device type
-  const toggleDeviceType = async (id, currentType) => {
-    const newType = currentType === "mobile" ? "desktop" : "mobile";
-    
-    try {
-      // Optimistic UI update
-      setImages(prev => 
-        prev.map(img => img.id === id ? { ...img, deviceType: newType } : img)
-      );
-      
-      // Uncomment for real API call:
-      // await fetch(`${SERVER_URL}/carousel/${id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ deviceType: newType })
-      // });
-      
-      console.log(`Updated device type for ${id} to ${newType}`);
-    } catch (err) {
-      console.error("Failed to update device type:", err);
-      // Revert on error
-      setImages(prev => 
-        prev.map(img => img.id === id ? { ...img, deviceType: currentType } : img)
-      );
-      alert("Failed to update device type");
-    }
-  };
+
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -113,60 +100,103 @@ export default function PropertyCarousel() {
       formData.append("image", file);
       formData.append("title", title);
       formData.append("deviceType", selectedDeviceType);
-      
-      // Uncomment for real API call:
-      // await fetch(`${SERVER_URL}/carousel`, {
-      //   method: 'POST',
-      //   body: formData
-      // });
-      
-      // Mock success
-      console.log("Image uploaded successfully");
-      alert("Uploaded Successfully!");
-      
+
+      await axios.post(`${SERVER_URL}/carousel`, formData);
+
+      // ✅ Use Swal after successful upload
+      Swal.fire({
+        title: "Uploaded Successfully!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       setFile(null);
       setTitle("");
       setPreview(null);
       fetchImages();
     } catch (error) {
+      console.error("Error uploading image:", error);
       alert("Error uploading image");
-      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id, imageTitle) => {
-    const confirmed = window.confirm(`Are you sure you want to delete "${imageTitle}"?`);
-    
-    if (confirmed) {
-      try {
-        // Uncomment for real API call:
-        // await fetch(`${SERVER_URL}/carousel/${id}`, { method: 'DELETE' });
-        
-        setImages(prev => prev.filter(img => img.id !== id));
-        
-        // Adjust current slide if necessary
-        if (currentSlide >= images.length - 1 && currentSlide > 0) {
-          setCurrentSlide(prev => Math.max(0, prev - 1));
-        }
-        
-        alert(`Deleted "${imageTitle}" successfully!`);
-      } catch (err) {
-        console.error("Error deleting image:", err);
-        alert("Failed to delete property image.");
+
+const handleDelete = async (id, imageTitle) => {
+  // Show confirmation dialog
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: `You won't be able to revert this! Delete "${imageTitle}"?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+    focusCancel: true,
+  });
+
+  if (result.isConfirmed) {
+    try {
+      // Show loading indicator
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      // Perform deletion
+      await axios.delete(`${SERVER_URL}/carousel/${id}`);
+
+      // Update state
+      const updatedImages = images.filter((img) => img.id !== id);
+      setImages(updatedImages);
+
+      // Adjust current slide if needed
+      if (updatedImages.length === 0) {
+        setCurrentSlide(0);
+      } else if (currentSlide >= updatedImages.length) {
+        setCurrentSlide(updatedImages.length - 1);
       }
+
+      // Show success message
+      await Swal.fire({
+        title: "Deleted!",
+        text: `"${imageTitle}" has been deleted.`,
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Error deleting image:", err);
+      // Show error message
+      await Swal.fire({
+        title: "Failed to delete!",
+        text: "An error occurred while deleting the image. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
-  };
+  }
+};
+ 
 
   const nextSlide = () => {
     if (images.length === 0) return;
-    setCurrentSlide(prev => (prev + 1) % images.length);
+    setCurrentSlide((prev) => (prev + 1) % images.length);
   };
 
   const prevSlide = () => {
     if (images.length === 0) return;
-    setCurrentSlide(prev => (prev - 1 + images.length) % images.length);
+    setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
   };
 
   const handleTouchStart = (e) => {
@@ -179,18 +209,14 @@ export default function PropertyCarousel() {
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 75;
     const isRightSwipe = distance < -75;
-    
-    if (isLeftSwipe) {
-      nextSlide();
-    }
-    if (isRightSwipe) {
-      prevSlide();
-    }
-    
+
+    if (isLeftSwipe) nextSlide();
+    if (isRightSwipe) prevSlide();
+
     setTouchStart(0);
     setTouchEnd(0);
   };
@@ -213,9 +239,7 @@ export default function PropertyCarousel() {
         {images.length > 0 ? (
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-slate-800">
-                All Carousel Images
-              </h2>
+              <h2 className="text-xl font-semibold text-slate-800">All Carousel Images</h2>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -226,112 +250,80 @@ export default function PropertyCarousel() {
                 <span className="text-sm text-slate-600">Auto-slide</span>
               </label>
             </div>
-            
-            <div className="relative">
-              <div
-                className="relative overflow-hidden rounded-xl bg-black w-full h-[60vh] sm:h-[70vh] md:h-[80vh] flex items-center justify-center"
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
-                <div
-                  className="flex transition-transform ease-in-out duration-500"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {images.map((img) => (
-                    <div key={img.id} className="min-w-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 relative">
-                      {img.image && img.image.trim() !== "" ? (
-                        <img
-                          src={`${SERVER_URL}/${img.image.replace(/^\/?/, '')}`}
-                          alt={img.title}
-                          className="max-h-[80vh] w-auto object-contain mx-auto"
-                          style={{ maxWidth: '100%' }}
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const fallback = e.currentTarget.parentNode.querySelector('.fallback');
-                            if (fallback) {
-                              fallback.style.display = 'flex';
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center fallback">
-                          <span className="text-gray-400 text-lg">No Image Available</span>
-                        </div>
-                      )}
 
+            <div
+              className="relative overflow-hidden rounded-xl bg-black w-full aspect-[16/9] sm:aspect-[4/3] md:aspect-video flex items-center justify-center"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div
+                className="flex w-full h-full"
+                style={{
+                  transform: `translateX(-${currentSlide * 100}%)`,
+                  transition: 'transform 0.5s ease-in-out',
+                }}
+              >
+                {images.map((img) => (
+                  <div
+                    key={img.id}
+                    className="w-full flex-shrink-0 h-full flex items-center justify-center relative"
+                  >
+                    <img
+                      src={`${SERVER_URL}/${img.image.replace(/^\/?/, '')}`}
+                      alt={img.title}
+                      className="max-w-full max-h-full object-contain"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 z-30">
                       <button
                         onClick={() => handleDelete(img.id, img.title)}
-                        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-all hover:scale-110 z-10"
+                        className="p-2 bg-red-500/90 hover:bg-red-600 text-white rounded-full shadow-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
                         aria-label="Delete image"
+                        title="Delete this image"
                       >
-                        <X className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
-                      
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                        <div 
-                          onClick={() => toggleDeviceType(img.id, img.deviceType)}
-                          className="flex items-center gap-2 mb-2 cursor-pointer group"
-                        >
-                          {img.deviceType === "mobile" ? (
-                            <Smartphone className="w-4 h-4 text-blue-300 group-hover:text-blue-200" />
-                          ) : (
-                            <Monitor className="w-4 h-4 text-green-300 group-hover:text-green-200" />
-                          )}
-                          <span className={`text-xs font-semibold uppercase ${
-                            img.deviceType === "mobile" 
-                              ? "text-blue-200 group-hover:text-blue-100" 
-                              : "text-green-200 group-hover:text-green-100"
-                          } transition-colors`}>
-                            {img.deviceType}
-                          </span>
-                          <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            (click to toggle)
-                          </span>
-                        </div>
-                        <h3 className="text-white text-2xl font-bold">{img.title}</h3>
-                      </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Navigation Buttons */}
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevSlide}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-slate-800 p-3 rounded-full shadow-lg transition-all hover:scale-110"
-                      aria-label="Previous slide"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button
-                      onClick={nextSlide}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-slate-800 p-3 rounded-full shadow-lg transition-all hover:scale-110"
-                      aria-label="Next slide"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </>
-                )}
+                    {/* Title & Device Tag - Bottom Left */}
+                    <div className="absolute bottom-3 left-3 bg-black/70 text-white px-2.5 py-1.5 rounded text-sm font-medium backdrop-blur-sm">
+                      {img.title} 
+                         {img.deviceType === 'mobile' ? (
+                        <div className ='flex'>
+                          <Smartphone className="w-4 h-4 text-blue-600" /> 
+                          <span>Mobile</span>
+                        </div>
+                        ) : (
+                          <div className = 'flex'>
+
+                            <Monitor className="w-4 h-4 text-green-600" />
+                            <span>Desktop</span>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Dots Navigation */}
+              {/* Navigation Arrows (outside image slides) */}
               {images.length > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {images.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentSlide(idx)}
-                      className={`transition-all ${
-                        idx === currentSlide 
-                          ? "w-8 bg-blue-600" 
-                          : "w-2 bg-slate-300 hover:bg-slate-400"
-                      } h-2 rounded-full`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
+                <>
+                  <button
+                    onClick={prevSlide}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white text-slate-800 p-2 rounded-full shadow-lg transition-all hover:scale-105 focus:outline-none"
+                    aria-label="Previous slide"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white text-slate-800 p-2 rounded-full shadow-lg transition-all hover:scale-105 focus:outline-none"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
               )}
             </div>
           </div>
