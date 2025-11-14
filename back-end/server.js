@@ -19,7 +19,7 @@ App.use("/uploads", express.static(path.join(__dirname, "uploads")));
 App.use('/', index);
 
 // ✅ Sync all models (like Mongoose schema)
-sequelize.sync({ alter: true })
+sequelize.sync()
   .then(() => console.log('✅ All MySQL models synced'))
   .catch(err => console.error('❌ Sync error:', err));
 
