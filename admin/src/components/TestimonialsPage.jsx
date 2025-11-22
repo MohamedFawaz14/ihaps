@@ -11,8 +11,7 @@ export default function TestimonialsPage() {
   const [editingTestimonial, setEditingTestimonial] = useState(null);
    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   // Fetch testimonials from backend
-  useEffect(() => {
-    const fetchTestimonials = async () => {
+  const fetchTestimonials = async () => {
       try {
         const res = await axios.get(`${SERVER_URL}/testimonials`);
         setTestimonials(res.data);
@@ -20,6 +19,8 @@ export default function TestimonialsPage() {
         console.error('Error fetching testimonials:', err);
       }
     };
+    
+  useEffect(() => {
     fetchTestimonials();
   }, []);
 

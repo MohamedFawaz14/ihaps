@@ -252,7 +252,7 @@ const handleDelete = async (id, imageTitle) => {
             </div>
 
             <div
-              className="relative overflow-hidden rounded-xl bg-black w-full aspect-[16/9] sm:aspect-[4/3] md:aspect-video flex items-center justify-center"
+              className="relative overflow-hidden rounded-xl bg-black w-full min-h-[350px] aspect-[16/9] sm:aspect-[4/3] md:aspect-video flex items-center justify-center"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}

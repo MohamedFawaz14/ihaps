@@ -8,8 +8,8 @@ export default function TestimonialsSection() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [loading, setLoading] = useState(true);
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-  useEffect(() => {
-    const fetchTestimonials = async () => {
+  
+  const fetchTestimonials = async () => {
       try {
         const res = await axios.get(`${SERVER_URL}/testimonials`);
          if (Array.isArray(res.data)) {
@@ -22,6 +22,7 @@ export default function TestimonialsSection() {
         setLoading(false);
       }
     };
+  useEffect(() => {
     fetchTestimonials();
   }, []);
 

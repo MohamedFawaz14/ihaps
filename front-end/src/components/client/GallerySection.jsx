@@ -9,8 +9,7 @@ export default function GallerySection() {
   const [loading, setLoading] = useState(true);
 
    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-  useEffect(() => {
-    const fetchGallery = async () => {
+   const fetchGallery = async () => {
       try {
         const res = await axios.get(`${SERVER_URL}/gallery`);
         setGalleryImages(res.data || []);
@@ -20,6 +19,7 @@ export default function GallerySection() {
         setLoading(false);
       }
     };
+  useEffect(() => {
     fetchGallery();
   }, []);
 
