@@ -11,27 +11,28 @@ export default function VenturesSection() {
 
   const fetchProjects = async () => {
      //check if data exists in cache 
-    const cached = localStorage.getItem("carousel");
-
-     if (cached) {
-    try {
+     try {
+      const cached = localStorage.getItem("projects");
+  
+       if (cached) {
       const parsedData = JSON.parse(cached);
       setAllImages(parsedData);
       setLoading(false);
       return;
-    } catch (parseError) {
+    }
+  } catch (parseError) {
       // Cache is corrupted, remove it and fetch fresh data
-      localStorage.removeItem("carousel");
+      localStorage.removeItem("projects");
       console.error("Failed to parse cached carousel data:", parseError);
     }
-  }
+  
   
 
     try {
       const res = await axios.get(`${SERVER_URL}/projects`);
       setProjects(res.data || []);
        //save to Cache
-        localStorage.setItem("carousel",JSON.stringify(res.data || []))
+        localStorage.setItem("projects",JSON.stringify(res.data || []))
     } catch (err) {
       toast.error('Failed to fetch Projects!');
     } finally {
