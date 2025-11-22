@@ -23,27 +23,27 @@ export default function CarouselSection() {
   }, []);
 
   const fetchImages = async () => {
-    //check if data exists in cache 
-    const cached = localStorage.getItem("carousel");
+  //   //check if data exists in cache 
+  //   const cached = localStorage.getItem("carousel");
 
-     if (cached) {
-    try {
-      const parsedData = JSON.parse(cached);
-      setAllImages(parsedData);
-      setLoading(false);
-      return;
-    } catch (parseError) {
-      // Cache is corrupted, remove it and fetch fresh data
-      localStorage.removeItem("carousel");
-      console.error("Failed to parse cached carousel data:", parseError);
-    }
-  }
+  //    if (cached) {
+  //   try {
+  //     const parsedData = JSON.parse(cached);
+  //     setAllImages(parsedData);
+  //     setLoading(false);
+  //     return;
+  //   } catch (parseError) {
+  //     // Cache is corrupted, remove it and fetch fresh data
+  //     localStorage.removeItem("carousel");
+  //     console.error("Failed to parse cached carousel data:", parseError);
+  //   }
+  // }
   
       try {
         const res = await axios.get(`${SERVER_URL}/carousel`);
         setAllImages(Array.isArray(res.data) ? res.data : []);
-        //save to Cache
-        localStorage.setItem("carousel",JSON.stringify(Array.isArray(res.data) ? res.data : []))
+        // //save to Cache
+        // localStorage.setItem("carousel",JSON.stringify(Array.isArray(res.data) ? res.data : []))
       } catch {
         toast.error("Failed to load carousel.");
       } finally {
