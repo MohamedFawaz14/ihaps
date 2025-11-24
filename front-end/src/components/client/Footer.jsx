@@ -9,7 +9,7 @@ export default function Footer() {
     { name: 'Projects', href: '/projects' },
     { name: 'Blog', href: '/blog' },
     { name: 'Gallery', href: '/gallery' },
-    {name :'Admin' , href :'/admin'}
+   // {name :'Admin' , href :'/admin'}
   ];
 
   const services = [
