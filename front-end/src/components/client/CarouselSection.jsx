@@ -23,21 +23,21 @@ export default function CarouselSection() {
   }, []);
 
   const fetchImages = async () => {
-    try {
-      //check if data exists in cache 
-      const cached = localStorage.getItem("carousel");
+  //   try {
+  //     //check if data exists in cache 
+  //     const cached = localStorage.getItem("carousel");
   
-       if (cached) {
-      const parsedData = JSON.parse(cached);
-      setAllImages(parsedData);
-      setLoading(false);
-      return;
-    }
-   } catch (parseError) {
-      // Cache is corrupted, remove it and fetch fresh data
-      localStorage.removeItem("carousel");
-      console.error("Failed to parse cached carousel data:", parseError);
-    }
+  //      if (cached) {
+  //     const parsedData = JSON.parse(cached);
+  //     setAllImages(parsedData);
+  //     setLoading(false);
+  //     return;
+  //   }
+  //  } catch (parseError) {
+  //     // Cache is corrupted, remove it and fetch fresh data
+  //     localStorage.removeItem("carousel");
+  //     console.error("Failed to parse cached carousel data:", parseError);
+  //   }
   
   
       try {
@@ -45,7 +45,7 @@ export default function CarouselSection() {
         const images = Array.isArray(res.data) ? res.data : [];
         setAllImages(images);
         //save to Cache
-        localStorage.setItem("carousel",JSON.stringify(images));
+        // localStorage.setItem("carousel",JSON.stringify(images));
       } catch {
         toast.error("Failed to load carousel.");
       } finally {
