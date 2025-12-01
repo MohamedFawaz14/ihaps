@@ -80,7 +80,7 @@ export default function TestimonialsPage() {
     <div className="flex h-screen">
       <NavBar />
  
-      <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-10">
+      <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-2 mb-5">
         <div className="space-y-6">
           {/* Header */}
           <div className="relative">

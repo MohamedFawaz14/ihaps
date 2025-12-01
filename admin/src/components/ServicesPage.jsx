@@ -73,7 +73,7 @@ export default function ServicesPage() {
     <div className="flex h-screen bg-gray-50">
       <NavBar />
       
-      <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-10">
+      <main className="flex-1 overflow-y-auto p-6 ml-0 md:ml-80 mt-2 mb-5 ">
         <div className="space-y-6">
           {/* Header Section */}
           <div className="relative">

@@ -6,7 +6,7 @@ const Login = sequelize.define('Login', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    // unique: true,
     validate: {
       isEmail: true
     },

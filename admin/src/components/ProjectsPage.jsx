@@ -94,10 +94,10 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-transparent">
       <NavBar />
       {/* Main Content - Scrollable */}
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 ml-0 md:ml-80 mt-10"> 
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 ml-0 md:ml-80 mt-2 mb-5"> 
         <div className="space-y-6">
           {/* Header Section */}
           <div className="relative">
