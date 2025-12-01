@@ -81,8 +81,12 @@ export default function TestimonialModal({ isOpen, onClose, onSave, testimonial 
           </div>
 
           <div className="flex justify-end space-x-3">
-            <button type="button" onClick={handleClose} className="px-4 py-2 border rounded-md">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-accent text-primary rounded-md">Save</button>
+            <button type="button" onClick={handleClose} className="px-4 py-2 border rounded-md
+            hover:bg-red-500 hover:text-white
+            ">Cancel</button>
+            <button type="submit" className="px-4 py-2 bg-accent text-primary rounded-md
+            hover:bg-amber-400 hover:text-white
+            ">Save</button>
           </div>
         </form>
       </div>

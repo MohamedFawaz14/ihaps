@@ -104,13 +104,15 @@ export default function AchievementModal({ isOpen, onClose, onSave, achievement 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border rounded-md hover:bg-gray-50"
+              className="px-4 py-2 border rounded-md 
+              hover:bg-red-500 hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-accent text-primary rounded-md hover:bg-accent/90"
+              className="px-4 py-2 bg-accent text-primary rounded-md hover:bg-accent/90
+              hover:bg-amber-400 hover:text-white"
             >
               {achievement ? 'Update' : 'Add'}
             </button>

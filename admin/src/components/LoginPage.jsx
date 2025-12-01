@@ -224,7 +224,7 @@ const handleLogin = async (e) => {
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400/70 group-focus-within:text-yellow-400 transition" />
                   <input
                     type="email"
-                    placeholder={loginType === "master" ? "ikhlas@master.com" : "Email address"}
+                    placeholder= "Email address"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400/30 transition"
@@ -234,7 +234,7 @@ const handleLogin = async (e) => {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400/70 group-focus-within:text-yellow-400 transition" />
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder={loginType === "master" ? "ikhlas@master123" : "Password"}
+                    placeholder="Password"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400/30 transition"

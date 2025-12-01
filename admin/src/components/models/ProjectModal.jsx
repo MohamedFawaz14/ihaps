@@ -376,8 +376,9 @@ const handleMainImageChange = (e) => {
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 border rounded-md">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-accent text-primary rounded-md">{editProject ? "Update" : "Add"} Project</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 border rounded-md
+            hover:bg-red-500 hover:text-white">Cancel</button>
+            <button type="submit" className="px-4 py-2 bg-accent text-primary rounded-md hover:bg-amber-400 hover:text-white">{editProject ? "Update" : "Add"} Project</button>
           </div>
         </form>
       </div>
