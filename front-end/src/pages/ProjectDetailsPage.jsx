@@ -141,13 +141,13 @@ useEffect(() => {
   return (
     <div>
       {/* Hero Section */}
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden bg-black">
         {/* Handle potential null mainImage */}
         {project.mainImage && (
           <img
             src={`${SERVER_URL}${project.mainImage}`}
             alt={project.name || "Project Image"}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-fit object-center"
             onError={(e) => {
               console.error("Main image failed to load:", e.target.src);
               e.target.style.display = 'none'; // Hide broken image

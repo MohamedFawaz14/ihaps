@@ -77,9 +77,9 @@ export default function VenturesSection() {
               key={venture.id} 
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
             >             
-          <div className="relative h-64">
+          <div className="relative aspect-4/3 overflow-hidden bg-black">
             {venture.mainImage && ( // Check if venture.mainImage is truthy (not null, not undefined, not an empty string)
-              <img
+              <img 
                 src={venture.mainImage.startsWith("http") 
                   ? venture.mainImage 
                   : `${SERVER_URL}${venture.mainImage}`
@@ -92,7 +92,7 @@ export default function VenturesSection() {
                   // e.target.src = '/path/to/default/image.jpg';
                 }}
                 alt={venture.name || "Venture Image"} // Provide a fallback alt text
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
               />
             )}
             {/* Optional: Show a placeholder if mainImage is null */}
