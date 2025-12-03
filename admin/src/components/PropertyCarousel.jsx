@@ -413,12 +413,12 @@ const handleDelete = async (id, imageTitle) => {
 
             <div className="flex items-center justify-center">
               {preview ? (
-                <div className="w-full">
-                  <p className="text-sm font-medium text-slate-700 mb-2">Preview</p>
+                <div className="relative aspect-4/3 rounded-lg shadow-md overflow-hidden bg-black">
+                  <p className=" absolute text-sm font-medium text-slate-700 mb-2 p-2 ">Preview</p>
                   <img
                     src={preview}
                     alt="Preview"
-                    className="w-full h-64 object-cover rounded-lg shadow-md"
+                    className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300 "
                   />
                 </div>
               ) : (

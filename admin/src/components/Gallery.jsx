@@ -184,16 +184,16 @@ const [previewImage, setPreviewImage] = useState('');
               {/* Preview Section */}
               <div className="flex items-center justify-center">
                 {preview ? (
-                  <div className="w-full">
-                    <p className="text-sm font-medium text-slate-700 mb-2">Preview</p>
+                  <div className="relative aspect-4/3 rounded-lg shadow-md overflow-hidden bg-black">
+                    <p className=" absolute text-sm font-medium text-slate-700 mb-2 p-2">Preview</p>
                     <img
                       src={preview}
                       alt="Preview"
-                      className="w-full h-64 object-cover rounded-lg shadow-md"
+                      className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                 ) : (
-                  <div className="w-full h-64 bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
+                  <div className="w-full aspect-4/3 bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
                     <div className="text-center">
                       <ImageIcon className="w-12 h-12 text-slate-400 mx-auto mb-2" />
                       <p className="text-slate-500">Image preview will appear here</p>
@@ -226,14 +226,14 @@ const [previewImage, setPreviewImage] = useState('');
           >
            {/* Fixed-height image container */}
               <div 
-                className="h-64 w-full overflow-hidden bg-slate-100 flex items-center justify-center cursor-pointer"
+                className=" aspect-4/3 w-full overflow-hidden bg-slate-100 flex items-center justify-center cursor-pointer"
                 onClick={() => g.image && (setPreviewImage(`${SERVER_URL}${g.image}`), setIsPreviewOpen(true))}
               >
                 {g.image ? (
                   <img
                     src={`${SERVER_URL}${g.image}`}
                     alt={g.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
