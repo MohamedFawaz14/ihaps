@@ -91,7 +91,7 @@ export default function GallerySection() {
               ? img.image
               : `${SERVER_URL}/${img.image.replace(/^\/?/, "")}`}
             alt={img.title || "gallery"}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               e.currentTarget.parentNode.querySelector('.fallback').style.display = 'flex';
@@ -119,43 +119,45 @@ export default function GallerySection() {
         {/* Lightbox */}
         {selectedImage && (
           <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-            <div className="relative max-w-4xl max-h-full">
-              <img
-                src={selectedImage.image.startsWith("http")
-                  ? selectedImage.image
-                  : `${SERVER_URL}/${selectedImage.image.replace(/^\/?/, "")}`}
-                alt={selectedImage.title || "gallery"}
-                className="max-w-full max-h-full object-contain"
-              />
+           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-auto flex items-start justify-center p-4">
+          <img
+            src={selectedImage.image.startsWith("http")
+              ? selectedImage.image
+              : `${SERVER_URL}/${selectedImage.image.replace(/^\/?/, "")}`}
+            alt={selectedImage.title || "gallery"}
+            className="w-full h-auto max-h-[80vh] mx-auto"
+            // Note: no object-* needed — let it render naturally but capped in height
+          />
 
-              <div className="absolute bottom-4 left-4 text-white">
-                <span className="inline-block px-2 py-1 bg-yellow-600 text-black rounded text-xs mb-2 font-medium">
-                  {selectedImage.category}
-                </span>
-                <h3 className="text-lg font-medium">{selectedImage.title}</h3>
-              </div>
+          {/* Overlay content */}
+          <div className="absolute bottom-4 left-8 text-white pointer-events-none">
+            <span className="inline-block px-2 py-1 bg-yellow-600 text-black rounded text-xs mb-2 font-medium">
+              {selectedImage.category}
+            </span>
+            <h3 className="text-lg font-medium">{selectedImage.title}</h3>
+          </div>
 
-              <button
+          <button
                 onClick={closeLightbox}
                 className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors duration-200"
               >
-                <X className="h-8 w-8 text-black border-1 border-white rounded-full" />
+                <X className="h-8 w-8 text-black border-1 border-white rounded-full m-2" />
               </button>
 
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-300 transition-colors duration-200"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-300 transition-colors duration-200 m-2"
               >
                 <ChevronLeft className="h-8 w-8 text-black border-1 border-white rounded-full" />
               </button>
 
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-300 transition-colors duration-200"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-300 transition-colors duration-200 m-2"
               >
                 <ChevronRight className="h-8 w-8 text-black border-1 border-white rounded-full" />
               </button>
-            </div>
+</div>
           </div>
         )}
       </div>

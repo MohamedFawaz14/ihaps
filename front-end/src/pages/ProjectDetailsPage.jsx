@@ -193,7 +193,7 @@ useEffect(() => {
                     <img
                       src={`${SERVER_URL}${image}`}
                       alt={`${project.name} - Image ${index + 1}`}
-                      className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300"
                       onError={(e) => {
                         console.error("Gallery image failed to load:", e.target.src);
                         e.target.style.display = 'none';

@@ -159,7 +159,7 @@ export default function ProjectsPage() {
                     <img
                       src={project.mainImage.startsWith("http") ? project.mainImage : `${SERVER_URL}${project.mainImage}`}
                       alt={project.name || "Project Image"} // Use project name or fallback
-                      className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300"
                       onError={(e) => {
                          console.error("Main image failed to load:", e.target.src);
                          // Optionally, you could set a default image here:

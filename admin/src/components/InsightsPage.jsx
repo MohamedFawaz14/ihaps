@@ -123,7 +123,7 @@ export default function InsightsPage() {
                     <img 
                       src={`${SERVER_URL}${insight.image}`} 
                       alt={insight.title} 
-                      className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300"
                     />
                   ) : (
                     // Render a placeholder if insight.image is falsy

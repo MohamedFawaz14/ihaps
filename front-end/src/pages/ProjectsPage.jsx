@@ -110,7 +110,7 @@ export default function VenturesSection() {
                   // e.target.src = '/path/to/default/image.jpg';
                 }}
                 alt={venture.name || "Venture Image"} // Provide a fallback alt text
-                className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
+                className="w-full h-full object-fill object-center hover:scale-110 transition-transform duration-300"
               />
             )}
             {/* Show a placeholder if mainImage is null */}
