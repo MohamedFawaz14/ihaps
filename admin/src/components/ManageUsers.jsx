@@ -19,11 +19,12 @@ export default function ManageUsers() {
     try {
       setIsLoading(true);
       const res = await axios.get(`${SERVER_URL}/manage-users`);
-      console.log(res.data);
+      // console.log(res.data);
       setUsers(res.data);
       setIsLoading(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      toast.error(error);
       setIsLoading(false);
     }
   };
@@ -77,7 +78,7 @@ export default function ManageUsers() {
       setForm({ id: null, name: "", email: "", password: "" });
       setShowModal(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       Swal.fire({
         icon: 'error',
         title: 'Error!',

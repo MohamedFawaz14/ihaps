@@ -155,11 +155,11 @@ export default function ProjectsPage() {
 
                 {/* Main Image or Placeholder */}
                 {project.mainImage ? (
-                  <div className="relative h-56 overflow-hidden group">
+                  <div className="relative aspect-4/3  overflow-hidden bg-black">
                     <img
                       src={project.mainImage.startsWith("http") ? project.mainImage : `${SERVER_URL}${project.mainImage}`}
                       alt={project.name || "Project Image"} // Use project name or fallback
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
                       onError={(e) => {
                          console.error("Main image failed to load:", e.target.src);
                          // Optionally, you could set a default image here:
@@ -177,7 +177,8 @@ export default function ProjectsPage() {
                   </div>
                 ) : (
                   // Placeholder when mainImage is null/undefined/empty
-                  <div className="relative h-56 bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="relative aspect-4/3 bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                    
                     <div className="text-center">
                       <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-500 text-sm">No Image Available</p>
@@ -193,7 +194,8 @@ export default function ProjectsPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-gray-500">Price/Sq.ft</p>
-                      <p className="text-lg font-bold text-gray-900">₹{project.pricePerSquareFoot}</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        ₹{Math.round(project.pricePerSquareFoot)}</p>
                     </div>
                   </div>
 

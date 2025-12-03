@@ -118,16 +118,16 @@ export default function InsightsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredInsights.map(insight => (
               <div key={insight.id} className="bg-white rounded-lg border-2 border-blue-100 hover:border-blue-300 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                <div className="relative">
+                <div className="relative aspect-4/3  overflow-hidden bg-black">
                    { insight.image ? ( // Check if insight.image exists and is truthy
                     <img 
                       src={`${SERVER_URL}${insight.image}`} 
                       alt={insight.title} 
-                      className="w-full h-48 object-cover rounded-t-lg"
+                      className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
                     />
                   ) : (
                     // Render a placeholder if insight.image is falsy
-                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-lg">
+                    <div className="w-full aspect-4/3 bg-gray-200 flex items-center justify-center rounded-t-lg">
                       <span className="text-gray-500 text-sm">No Image</span>
                     </div>
                   )

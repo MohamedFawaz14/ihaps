@@ -8,7 +8,6 @@ export default function AchievementModal({ isOpen, onClose, onSave, achievement 
     label: '',
     value: 0,
     suffix: '',
-    color: 'text-blue-600',
     icon: 'Building2'
   });
 
@@ -16,13 +15,10 @@ export default function AchievementModal({ isOpen, onClose, onSave, achievement 
     if (achievement) {
       setFormData(achievement);
     } else {
-      setFormData({
-        label: '',
-        value: 0,
-        suffix: '',
-        color: 'text-blue-600',
-        icon: 'Building2'
-      });
+      setFormData({label: '',
+    value: 0,
+    suffix: '',
+    icon: 'Building2'});
     }
   }, [achievement]);
 

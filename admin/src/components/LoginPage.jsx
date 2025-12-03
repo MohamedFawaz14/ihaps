@@ -43,13 +43,13 @@ const handleLogin = async (e) => {
     }
   } else {
     // 👤 User login (backend validation)
-    console.log(loginEmail,loginPassword)
+    // console.log(loginEmail,loginPassword)
     try {
       const res = await axios.post(`${SERVER_URL}/login`, {
         email:loginEmail,
         password:loginPassword,
       });
-      console.log("User login response:", res.data);
+      // console.log("User login response:", res.data);
 
       if (res.data.message === "success") {
         localStorage.setItem("isAuthenticated", "true");

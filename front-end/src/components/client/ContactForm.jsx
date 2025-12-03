@@ -23,7 +23,7 @@ export default function ContactForm() {
     
     try {
       const response  = await axios.post(`${SERVER_URL}/contactForm`,{formData});
-      console.log(response.message);
+      // console.log(response.message);
       Swal.fire({
         title: `Thank you for your enquiry!`,
         text: "Our team will contact you within 2-3 business days.",

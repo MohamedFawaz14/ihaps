@@ -17,7 +17,7 @@ export default function BlogPage() {
     try {
       const res = await axios.get(`${SERVER_URL}/insights`);
       setInsights(res.data || []);
-      console.log(res.data)
+     
     } catch (err) {
       toast.error('Failed to fetch insights!', err);
       setInsights([]); 
@@ -77,7 +77,7 @@ export default function BlogPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayPosts.map((post, index) => (
               <article key={index} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group">
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative aspect-4/3  overflow-hidden bg-black">
                  {post.image && ( // post.image is truthy (not null, not undefined, not an empty string)
               <img
                 src={post.image.startsWith("http") 
@@ -92,7 +92,7 @@ export default function BlogPage() {
                   // e.target.src = '/path/to/default/image.jpg';
                 }}
                 alt={post.name || "Insights Image"} // Provide a fallback alt text
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
               />
             )}
             {/* Show a placeholder if mainImage is null */}
