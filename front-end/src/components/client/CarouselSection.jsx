@@ -19,7 +19,7 @@ export default function CarouselSection() {
   useEffect(() => {
     const updateDeviceType = () => {
       const width = window.innerWidth;
-      if (width < 768) {
+      if (width < 1024) {
         setDeviceType('mobile');
       } else {
         setDeviceType('desktop');
@@ -155,7 +155,7 @@ export default function CarouselSection() {
 
   if (loading) {
     return (
-      <div className={`w-full ${isDesktop ? 'h-[600px]' : 'h-[500px]'}`}>
+      <div className="w-full h-screen md:h-[600px] lg:h-[650px] xl:h-[700px]">
         <div className="flex items-center justify-center h-full bg-black text-white">
           <div className="flex flex-col items-center gap-3">
             <div className="relative w-14 h-14">
@@ -171,7 +171,7 @@ export default function CarouselSection() {
 
   if (filteredImages.length === 0) {
     return (
-      <div className={`w-full ${isDesktop ? 'h-[600px]' : 'h-[500px]'}`}>
+      <div className="w-full h-screen md:h-[600px] lg:h-[650px] xl:h-[700px]">
         <div className="flex flex-col items-center justify-center h-full bg-black text-white p-4">
           <p className="text-xl mb-2">No carousel images available.</p>
           <p className="text-gray-400 text-sm mb-4">Screen: {window.innerWidth}px</p>
@@ -187,9 +187,12 @@ export default function CarouselSection() {
   }
 
   return (
-    <div className={`relative w-full ${isDesktop ? 'h-[600px]' : 'h-[500px]'}`}>
+    <div className={`relative w-full ${
+  deviceType === 'mobile' ? 'h-[70vh]' : 'h-screen md:h-[600px] lg:h-[650px] xl:h-[700px]'
+}`}>
+      {/* Progress indicators */}
       {filteredImages.length > 1 && (
-        <div className="absolute bottom-3 left-4 right-4 z-20">
+        <div className="absolute bottom-2 sm:bottom-3 left-2 right-2 sm:left-4 sm:right-4 z-20">
           <div className="flex space-x-1">
             {filteredImages.map((_, index) => (
               <div 
@@ -213,8 +216,9 @@ export default function CarouselSection() {
         </div>
       )}
 
+      {/* Image Container */}
       <div
-        className="relative w-full h-full"
+        className="relative w-full h-full overflow-hidden bg-black"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         style={{ touchAction: 'pan-y' }}
@@ -226,33 +230,38 @@ export default function CarouselSection() {
               index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
             }`}
           >
-            {/* ✅ FIXED: removed bg-black, keep object-cover */}
             <img
-              src={getImageUrl(img.image)}
-              alt={img.title || 'Carousel image'}
-              className="w-full h-full object-cover object-center"
-              loading={index === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
+            src={getImageUrl(img.image)}
+            alt={img.title || 'Carousel image'}
+            className="w-full h-full"
+            style={{
+              objectFit: 'fill',     // ← Show full image without cropping
+              objectPosition: 'center', // Center it
+              backgroundColor: 'black', // Optional: match your bg so bars blend
+            }}
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding="async"
+          />
           </div>
         ))}
       </div>
 
+      {/* Navigation Buttons */}
       {filteredImages.length > 1 && (
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-200 focus:outline-none hover:scale-110 active:scale-95"
+            className="absolute left-1 sm:left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 md:p-3 rounded-full transition-all duration-200 focus:outline-none hover:scale-110 active:scale-95"
             aria-label="Previous slide"
           >
-            <ChevronLeft size={isDesktop ? 24 : 20} />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all duration-200 focus:outline-none hover:scale-110 active:scale-95"
+            className="absolute right-1 sm:right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 md:p-3 rounded-full transition-all duration-200 focus:outline-none hover:scale-110 active:scale-95"
             aria-label="Next slide"
           >
-            <ChevronRight size={isDesktop ? 24 : 20} />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           </button>
         </>
       )}

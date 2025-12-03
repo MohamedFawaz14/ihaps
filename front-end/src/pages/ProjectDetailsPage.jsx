@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { useParams, Link } from 'react-router-dom';
-import { Plus, Leaf, Car, Shield, Users, Footprints, Droplets, Store, Lightbulb, Home, Sparkles, MapPin, ArrowLeft } from 'lucide-react';
+import { Plus, Leaf, Car, Shield, Users, Footprints, Droplets, Store, Lightbulb, Home, Sparkles, MapPin, ArrowLeft,X , ChevronLeft, ChevronRight} from 'lucide-react';
 import axios from 'axios';
 
 const amenityIcons = {
@@ -46,6 +46,40 @@ export default function ProjectDetailsPage() {
     }
     return amenityIcons.default;
   };
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+const [lightboxIndex, setLightboxIndex] = useState(0);
+
+const openLightbox = (index) => {
+  setLightboxIndex(index);
+  setLightboxOpen(true);
+};
+
+const closeLightbox = () => {
+  setLightboxOpen(false);
+};
+
+const nextImage = () => {
+  setLightboxIndex((prev) => (prev + 1) % project.images.length);
+};
+
+const prevImage = () => {
+  setLightboxIndex((prev) => (prev - 1 + project.images.length) % project.images.length);
+};
+
+// Close on Escape key
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+  };
+
+  if (lightboxOpen) {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }
+}, [lightboxOpen]);
 
   const fetchProject = async () => {
     try {
@@ -102,6 +136,8 @@ export default function ProjectDetailsPage() {
 
   // 3. Show the project content only if loading is done and no error occurred
   // At this point, 'project' should be a valid object (or the error state would have been triggered)
+
+  
   return (
     <div>
       {/* Hero Section */}
@@ -149,17 +185,21 @@ export default function ProjectDetailsPage() {
               {project.images && project.images.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {project.images.map((image, index) => (
-                    <div key={index} className="relative h-48 rounded-lg overflow-hidden">
-                      <img
-                        src={`${SERVER_URL}${image}`}
-                        alt={`${project.name} - Image ${index + 1}`}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                           console.error("Gallery image failed to load:", e.target.src);
-                           e.target.style.display = 'none'; // Hide broken image
-                         }}
-                      />
-                    </div>
+                    <div
+                    key={index}
+                    className="relative aspect-[4/3] rounded-lg overflow-hidden bg-black"
+                    onClick={() => openLightbox(index)}
+                  >
+                    <img
+                      src={`${SERVER_URL}${image}`}
+                      alt={`${project.name} - Image ${index + 1}`}
+                      className="w-full h-full object-fit object-center hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        console.error("Gallery image failed to load:", e.target.src);
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
                   ))}
                 </div>
               ) : (
@@ -226,6 +266,69 @@ export default function ProjectDetailsPage() {
               </div>
             </div>
           </div>
+
+          {/* Display sub-image like caoursel */}
+{lightboxOpen && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm"
+    onClick={closeLightbox}
+  >
+    {/* Close on click outside image */}
+    <div className="relative w-full max-w-6xl h-[90vh] flex items-center">
+      {/* Prev Button */}
+      {project.images.length > 1 && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            prevImage();
+          }}
+          className="absolute left-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* Image */}
+      <img
+        src={`${SERVER_URL}${project.images[lightboxIndex]}`}
+        alt={`${project.name} - Image ${lightboxIndex + 1}`}
+        className="w-full h-full object-contain"
+        onClick={(e) => e.stopPropagation()} // Prevent closing on image click
+      />
+
+      {/* Next Button */}
+      {project.images.length > 1 && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            nextImage();
+          }}
+          className="absolute right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* Close Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          closeLightbox();
+        }}
+        className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Indicator (optional) */}
+      {project.images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+          {lightboxIndex + 1} / {project.images.length}
+        </div>
+      )}
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>
