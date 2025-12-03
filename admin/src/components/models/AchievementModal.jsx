@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 export default function AchievementModal({ isOpen, onClose, onSave, achievement }) {
   const [formData, setFormData] = useState({
     label: '',
-    value: 0,
+    value: '',
     suffix: '',
     icon: 'Building2'
   });
@@ -16,7 +16,7 @@ export default function AchievementModal({ isOpen, onClose, onSave, achievement 
       setFormData(achievement);
     } else {
       setFormData({label: '',
-    value: 0,
+    value: '',
     suffix: '',
     icon: 'Building2'});
     }
@@ -32,8 +32,18 @@ export default function AchievementModal({ isOpen, onClose, onSave, achievement 
       toast.error('Label is required');
       return;
     }
+    
+  const numericValue = formData.value === '' ? 0 : Number(formData.value);
+  if (isNaN(numericValue)) {
+    toast.error('Value must be a valid number');
+    return;
+  }
     onSave(formData);
     toast.success('Achievement saved successfully!');
+    setFormData({label: '',
+    value: '',
+    suffix: '',
+    icon: 'Building2'});
   };
 
   if (!isOpen) return null;
@@ -68,7 +78,7 @@ export default function AchievementModal({ isOpen, onClose, onSave, achievement 
             <input
               type="number"
               value={formData.value}
-              onChange={e => handleChange('value', parseInt(e.target.value) || 0)}
+              onChange={e => handleChange('value', parseInt(e.target.value))}
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
               required
             />
